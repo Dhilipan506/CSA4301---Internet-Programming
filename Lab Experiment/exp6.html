@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>SweetDelight Bakery - Artisan Cakes India</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--p:#ec4899;--bg:#0f172a;--c:#1e293b;--t:#f8fafc;--m:#94a3b8;--b:#334155}*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}body{background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:20px}header{background:#111827;border-bottom:1px solid var(--b);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}.brand{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff}nav{display:flex;gap:6px}nav button{background:transparent;border:1px solid var(--b);color:var(--m);padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:4px}nav button.active,nav button:hover{background:var(--p);color:#fff;border-color:var(--p)}main{max-width:1100px;margin:16px auto;padding:0 14px}.tab{display:none}.tab.active{display:block}.card{background:var(--c);border:1px solid var(--b);border-radius:8px;padding:16px;margin-bottom:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.row{display:flex;gap:8px;flex-wrap:wrap}input,select{background:#0b1120;border:1px solid var(--b);color:#fff;padding:7px 10px;border-radius:6px;flex:1;min-width:140px;font-size:13px}.btn{background:var(--p);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px}.btn-alt{background:#334155}.btn-sm{padding:4px 8px;font-size:11px}.cake-card{background:#0b1120;border:1px solid var(--b);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}.cake-img{height:110px;background:#1e293b;display:flex;align-items:center;justify-content:center;font-size:36px;color:#f472b6}.cake-info{padding:10px;display:flex;flex-direction:column;flex:1}.badge-veg{background:#064e3b;color:#34d399;padding:2px 5px;border-radius:3px;font-size:10px;font-weight:700}.step-bar{display:flex;justify-content:space-between;margin:12px 0;position:relative}.step-bar::before{content:'';position:absolute;top:10px;left:0;right:0;height:3px;background:#334155;z-index:1}.step{position:relative;z-index:2;background:var(--c);padding:2px 6px;border-radius:12px;font-size:10px}.step.done{color:#34d399;font-weight:700}.step.active{color:#f472b6;font-weight:700}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);justify-content:center;align-items:center;z-index:100}.modal.open{display:flex}.modal-box{background:var(--c);border:1px solid var(--b);border-radius:8px;max-width:380px;width:90%;padding:16px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}th,td{padding:7px;text-align:left;border-bottom:1px solid var(--b)}th{color:var(--m)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa-solid fa-cake-candles" style="color:#f472b6"></i> SweetDelight <span style="font-size:10px;background:#ec4899;padding:2px 5px;border-radius:8px">Delhi</span></div>
+  <nav id="nav"><button class="active" onclick="tab('shop')"><i class="fa-solid fa-store"></i> Menu</button><button onclick="tab('cart')"><i class="fa-solid fa-cart-shopping"></i> Cart (<span id="cartCount">0</span>)</button><button onclick="tab('track')"><i class="fa-solid fa-truck-fast"></i> Tracker</button><button onclick="tab('admin')"><i class="fa-solid fa-kitchen-set"></i> Kitchen</button></nav>
+</header>
+<main>
+  <section id="shop" class="tab active">
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <select id="catFilter" onchange="renderCakes()"><option value="all">All Occasions</option><option value="Birthday">Birthday</option><option value="Anniversary">Anniversary</option></select>
+        <select id="flavorFilter" onchange="renderCakes()"><option value="all">All Flavours</option><option value="Chocolate">Chocolate</option><option value="Red Velvet">Red Velvet</option></select>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px"><input type="checkbox" id="vegOnly" onchange="renderCakes()" style="width:14px;min-width:auto"> 100% Eggless <span class="badge-veg">VEG</span></label>
+      </div>
+    </div>
+    <div class="grid" id="cakeGrid"></div>
+  </section>
+  <section id="cart" class="tab">
+    <div class="card">
+      <h3 style="margin-bottom:8px"><i class="fa-solid fa-basket-shopping" style="color:var(--p)"></i> Cart & Checkout</h3>
+      <div id="cartItems"></div>
+      <div id="checkoutBox" style="margin-top:10px;border-top:1px solid var(--b);padding-top:10px;display:none">
+        <div class="grid" style="margin-bottom:8px">
+          <input type="text" id="custName" value="Dhiliban"><input type="tel" id="custPhone" value="+91 9876543210"><input type="text" id="custAddress" value="Nilgiri Hostel, IIT Delhi"><select id="custPay"><option>UPI (GPay / PhonePe / Paytm)</option><option>Cash on Delivery</option></select>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#0b1120;padding:10px;border-radius:6px"><div>Total: <span id="cartTotal" style="font-weight:700;color:#f472b6">₹0</span></div><button class="btn" onclick="placeOrder()">Pay via UPI</button></div>
+      </div>
+    </div>
+  </section>
+  <section id="track" class="tab"><div class="card"><h3><i class="fa-solid fa-route" style="color:var(--p)"></i> Cake Tracker</h3><div class="row" style="max-width:420px;margin:8px 0"><input type="text" id="orderQuery" placeholder="Order ID (e.g. SWD-101)"><button class="btn" onclick="trackOrder()">Track</button></div><div id="trackResult"></div></div></section>
+  <section id="admin" class="tab"><div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3><i class="fa-solid fa-list-check" style="color:var(--p)"></i> Kitchen Orders</h3><button class="btn btn-sm btn-alt" onclick="clearOrders()">Reset</button></div><div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Customer</th><th>Cakes</th><th>Message</th><th>Total</th><th>Status</th><th>Update</th></tr></thead><tbody id="adminOrders"></tbody></table></div></div></section>
+</main>
+<div class="modal" id="customModal">
+  <div class="modal-box">
+    <h3 id="modalTitle" style="margin-bottom:8px">Customize Cake</h3>
+    <form onsubmit="confirmAddCart(event)" style="display:flex;flex-direction:column;gap:8px">
+      <select id="cakeWeight"><option value="0.5">0.5 kg - Base Price</option><option value="1">1.0 kg - + ₹400</option></select>
+      <input type="text" id="cakeMsg" placeholder="Message on Cake" required>
+      <div class="row"><button type="button" class="btn btn-alt" style="flex:1" onclick="closeModal()">Cancel</button><button type="submit" class="btn" style="flex:1">Add to Cart</button></div>
+    </form>
+  </div>
+</div>
+<script>
+const cakes=[{id:1,name:"Dark Chocolate Truffle",cat:"Birthday",flv:"Chocolate",p:699,veg:true,icon:"fa-cake-candles"},{id:2,name:"Red Velvet Heart Cake",cat:"Anniversary",flv:"Red Velvet",p:799,veg:true,icon:"fa-heart"},{id:3,name:"Pineapple Gateau",cat:"Party",flv:"Pineapple",p:499,veg:true,icon:"fa-lemon"}];
+let cart=[], curCake=null, orders=JSON.parse(localStorage.getItem('swd_ord')||'[]');
+if(!orders.length){orders=[{id:"SWD-101",cust:"Dhiliban (+91 9876543210)",items:"Dark Chocolate Truffle (1kg)",msg:"Happy Birthday Bro!",total:1099,status:"Out for Delivery",step:4}];localStorage.setItem('swd_ord',JSON.stringify(orders));}
+function tab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');event?.target?.closest('button')?.classList.add('active');if(id==='cart')renderCart();if(id==='admin')renderAdmin();}
+function renderCakes(){
+  const cF=document.getElementById('catFilter').value, fF=document.getElementById('flavorFilter').value, vegOnly=document.getElementById('vegOnly').checked;
+  document.getElementById('cakeGrid').innerHTML=cakes.filter(c=>(cF==='all'||c.cat===cF)&&(fF==='all'||c.flv===fF)&&(!vegOnly||c.veg)).map(c=>`<div class="cake-card"><div class="cake-img"><i class="fa-solid ${c.icon}"></i></div><div class="cake-info"><div style="display:flex;justify-content:space-between"><span style="font-size:11px;color:var(--m)">${c.cat}</span>${c.veg?'<span class="badge-veg">VEG</span>':'<span style="color:#ef4444;font-size:10px">NON-VEG</span>'}</div><h4 style="margin:4px 0">${c.name}</h4><div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto"><span style="font-size:15px;font-weight:700;color:#f472b6">₹${c.p}</span><button class="btn btn-sm" onclick="openCustomize(${c.id})">Customize</button></div></div></div>`).join('');
+}
+function openCustomize(id){curCake=cakes.find(x=>x.id===id);document.getElementById('modalTitle').innerText=`Customize ${curCake.name}`;document.getElementById('customModal').classList.add('open');}
+function closeModal(){document.getElementById('customModal').classList.remove('open')}
+function confirmAddCart(e){
+  e.preventDefault();const w=parseFloat(document.getElementById('cakeWeight').value), addP=w===1?400:0;
+  cart.push({...curCake,weight:`${w}kg`,price:curCake.p+addP,msg:document.getElementById('cakeMsg').value});
+  document.getElementById('cartCount').innerText=cart.length;closeModal();alert(`Added to cart!`);
+}
+function renderCart(){
+  const box=document.getElementById('cartItems'), chk=document.getElementById('checkoutBox');
+  if(!cart.length){box.innerHTML='<p style="color:var(--m);text-align:center;padding:12px">Cart is empty.</p>';chk.style.display='none';return;}
+  let tot=0;box.innerHTML=cart.map((c,i)=>{tot+=c.price;return `<div style="display:flex;justify-content:space-between;align-items:center;background:#0b1120;padding:8px;border-radius:6px;margin-bottom:6px"><div><strong>${c.name}</strong> (${c.weight})<div style="font-size:11px;color:#f472b6">"${c.msg}"</div></div><div><strong>₹${c.price}</strong> <button class="btn-alt btn-sm" onclick="cart.splice(${i},1);document.getElementById('cartCount').innerText=cart.length;renderCart()"><i class="fa fa-trash"></i></button></div></div>`;}).join('');
+  document.getElementById('cartTotal').innerText=`₹${tot.toLocaleString('en-IN')}`;chk.style.display='block';
+}
+function placeOrder(){
+  const id='SWD-'+Math.floor(100+Math.random()*900), tot=cart.reduce((a,b)=>a+b.price,0);
+  orders.unshift({id,cust:`${document.getElementById('custName').value} (${document.getElementById('custPhone').value})`,items:cart.map(c=>`${c.name} (${c.weight})`).join(', '),msg:cart.map(c=>c.msg).join('; '),total:tot,status:"Order Received",step:1});
+  localStorage.setItem('swd_ord',JSON.stringify(orders));cart=[];document.getElementById('cartCount').innerText='0';tab('track');document.getElementById('orderQuery').value=id;trackOrder();alert(`Order Placed! ID: ${id}`);
+}
+function trackOrder(){
+  const q=document.getElementById('orderQuery').value.trim().toUpperCase(), o=orders.find(x=>x.id===q), out=document.getElementById('trackResult');
+  if(!o)return out.innerHTML='<div class="card" style="color:#ef4444">Order not found.</div>';
+  const steps=["Received","Baking","Decorating","Out for Delivery","Delivered"];
+  out.innerHTML=`<div class="card" style="border-left:4px solid var(--p)"><div style="display:flex;justify-content:space-between"><h3>Order ${o.id}</h3><span style="color:#f472b6;font-weight:700">${o.status}</span></div><p style="margin:4px 0;font-size:12px;color:var(--m)">${o.items} • "${o.msg}" • ₹${o.total}</p><div class="step-bar">${steps.map((s,i)=>`<div class="step ${i+1<o.step?'done':i+1===o.step?'active':''}">${s}</div>`).join('')}</div></div>`;
+}
+function renderAdmin(){document.getElementById('adminOrders').innerHTML=orders.map(o=>`<tr><td><strong>${o.id}</strong></td><td>${o.cust}</td><td>${o.items}</td><td><em>"${o.msg}"</em></td><td>₹${o.total}</td><td>${o.status}</td><td><select onchange="updateStatus('${o.id}',this.value)" style="min-width:100px;padding:2px;font-size:11px"><option ${o.status==='Order Received'?'selected':''}>Order Received</option><option ${o.status==='Baking in Oven'?'selected':''}>Baking in Oven</option><option ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option><option ${o.status==='Delivered'?'selected':''}>Delivered</option></select></td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center">No orders.</td></tr>';}
+function updateStatus(id,st){const o=orders.find(x=>x.id===id);if(!o)return;o.status=st;o.step=st.includes('Received')?1:st.includes('Baking')?2:st.includes('Out')?4:5;localStorage.setItem('swd_ord',JSON.stringify(orders));renderAdmin();}
+function clearOrders(){localStorage.removeItem('swd_ord');orders=[];renderAdmin();}
+renderCakes();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>IRCTC RailConnect - Indian Railways</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--p:#b91c1c;--bg:#0f172a;--c:#1e293b;--t:#f8fafc;--m:#94a3b8;--b:#334155}*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}body{background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:20px}header{background:#111827;border-bottom:1px solid var(--b);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}.brand{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff}nav{display:flex;gap:6px}nav button{background:transparent;border:1px solid var(--b);color:var(--m);padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:4px}nav button.active,nav button:hover{background:var(--p);color:#fff;border-color:var(--p)}main{max-width:1100px;margin:16px auto;padding:0 14px}.tab{display:none}.tab.active{display:block}.card{background:var(--c);border:1px solid var(--b);border-radius:8px;padding:16px;margin-bottom:12px}.row{display:flex;gap:8px;flex-wrap:wrap}input,select{background:#0b1120;border:1px solid var(--b);color:#fff;padding:7px 10px;border-radius:6px;flex:1;min-width:140px;font-size:13px}.btn{background:var(--p);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px}.btn-alt{background:#334155}.btn-sm{padding:4px 8px;font-size:11px}.train-item{background:#0b1120;border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}.cls-btn{background:#1e293b;border:1px solid var(--b);color:#fff;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}th,td{padding:7px;text-align:left;border-bottom:1px solid var(--b)}th{color:var(--m)}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);justify-content:center;align-items:center;z-index:100}.modal.open{display:flex}.modal-box{background:var(--c);border:1px solid var(--b);border-radius:8px;max-width:400px;width:90%;padding:18px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa-solid fa-train" style="color:#f59e0b"></i> IRCTC RailConnect <span style="font-size:10px;background:#b91c1c;padding:2px 5px;border-radius:8px">Indian Railways</span></div>
+  <nav id="nav"><button class="active" onclick="tab('search')"><i class="fa-solid fa-magnifying-glass"></i> Search</button><button onclick="tab('pnr')"><i class="fa-solid fa-ticket"></i> PNR</button><button onclick="tab('cancel')"><i class="fa-solid fa-ban"></i> Cancel</button><button onclick="tab('admin')"><i class="fa-solid fa-shield-halved"></i> Admin</button></nav>
+</header>
+<main>
+  <section id="search" class="tab active">
+    <div class="card">
+      <h3 style="margin-bottom:8px"><i class="fa-solid fa-route" style="color:var(--p)"></i> Book Train Tickets (India)</h3>
+      <div class="row">
+        <select id="from"><option value="NDLS">New Delhi (NDLS)</option><option value="BOM">Mumbai (MMCT)</option><option value="SBC">Bengaluru (SBC)</option></select><select id="to"><option value="BOM">Mumbai (MMCT)</option><option value="NDLS">New Delhi (NDLS)</option></select>
+        <input type="date" id="tdate" value="2026-10-25"><select id="quota"><option>General (GN)</option><option>Tatkal (CK)</option></select>
+        <button class="btn" onclick="renderTrains()"><i class="fa-solid fa-train-subway"></i> Find</button>
+      </div>
+    </div>
+    <div id="trainList"></div>
+  </section>
+  <section id="pnr" class="tab"><div class="card"><h3><i class="fa-solid fa-receipt" style="color:var(--p)"></i> 10-Digit PNR Status</h3><div class="row" style="max-width:450px;margin-top:8px"><input type="text" id="pnrInput" placeholder="Enter PNR (e.g. 2849182741)"><button class="btn" onclick="checkPnr()">Check</button></div></div><div id="pnrResult"></div></section>
+  <section id="cancel" class="tab"><div class="card"><h3><i class="fa-solid fa-ban" style="color:var(--p)"></i> Ticket Cancel & UPI Refund</h3><div class="row" style="max-width:450px;margin-top:8px"><input type="text" id="cancelPnr" placeholder="Enter PNR to Cancel"><button class="btn" style="background:#ef4444" onclick="cancelTicket()">Cancel</button></div></div><div id="cancelResult"></div></section>
+  <section id="admin" class="tab"><div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3><i class="fa-solid fa-chart-line" style="color:var(--p)"></i> Chart & Ledger</h3><button class="btn btn-sm btn-alt" onclick="clearLedger()">Reset</button></div><div style="overflow-x:auto"><table><thead><tr><th>PNR</th><th>Passenger</th><th>Train</th><th>Berth</th><th>Fare</th><th>Payment</th><th>Status</th></tr></thead><tbody id="ledgerBody"></tbody></table></div></div></section>
+</main>
+<div class="modal" id="bookModal">
+  <div class="modal-box">
+    <h3 id="modalTrainTitle" style="margin-bottom:8px">Book Ticket</h3>
+    <form onsubmit="confirmBook(event)" style="display:flex;flex-direction:column;gap:8px">
+      <input type="text" id="pName" placeholder="Passenger Name" required><div class="row"><input type="number" id="pAge" placeholder="Age" min="5" max="100" required><select id="pGender"><option>Male</option><option>Female</option></select></div>
+      <select id="pBerth"><option>Lower Berth (LB)</option><option>Middle Berth (MB)</option><option>Upper Berth (UB)</option></select><select id="pPay"><option>UPI (GPay / PhonePe / Paytm)</option><option>RuPay Debit Card</option></select>
+      <div style="display:flex;justify-content:space-between;font-weight:700"><span>Payable:</span><span id="modalFare" style="color:#f59e0b">₹0</span></div>
+      <div class="row"><button type="button" class="btn btn-alt" style="flex:1" onclick="closeModal()">Cancel</button><button type="submit" class="btn" style="flex:1">Pay & Book</button></div>
+    </form>
+  </div>
+</div>
+<script>
+const trains=[{no:"12952",name:"Tejas Rajdhani",from:"NDLS",to:"BOM",dep:"16:55",arr:"08:35",time:"15h 40m",cls:[{n:"1A",f:3850,s:12},{n:"2A",f:2450,s:28},{n:"3A",f:1650,s:64}]},{no:"22436",name:"Vande Bharat Exp",from:"NDLS",to:"BOM",dep:"06:00",arr:"14:05",time:"8h 05m",cls:[{n:"EC",f:2480,s:18},{n:"CC",f:1420,s:45}]},{no:"12618",name:"Mangala Exp",from:"NDLS",to:"SBC",dep:"09:15",arr:"07:45",time:"22h 30m",cls:[{n:"2A",f:2190,s:8},{n:"3A",f:1480,s:34},{n:"SL",f:540,s:82}]}];
+let bookings=JSON.parse(localStorage.getItem('irctc_b')||'[]'), curTr=null, curCls=null;
+if(!bookings.length){bookings=[{pnr:"2849182741",train:"12952 Tejas Rajdhani",name:"Aarav Sharma",age:28,berth:"B3-42 (LB)",fare:2450,pay:"UPI (GPay)",status:"CNF",date:"2026-10-25"}];localStorage.setItem('irctc_b',JSON.stringify(bookings));}
+function tab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');event?.target?.closest('button')?.classList.add('active');if(id==='admin')renderLedger();}
+function renderTrains(){const f=document.getElementById('from').value, t=document.getElementById('to').value;document.getElementById('trainList').innerHTML=trains.filter(x=>(x.from===f&&x.to===t)||(f!==t)).map(tr=>`<div class="train-item"><div><strong><span style="color:#f59e0b">${tr.no}</span> ${tr.name}</strong><div style="font-size:11px;color:var(--m)">${tr.dep} (${tr.from}) ➔ ${tr.arr} (${tr.to}) • ${tr.time}</div></div><div style="display:flex;gap:4px">${tr.cls.map(c=>`<button class="cls-btn" onclick="openBook('${tr.no}','${c.n}',${c.f})"><strong>${c.n}</strong> • ₹${c.f} (${c.s})</button>`).join('')}</div></div>`).join('');}
+function openBook(no,cls,f){curTr=trains.find(x=>x.no===no);curCls={n:cls,f};document.getElementById('modalTrainTitle').innerHTML=`Book ${curTr.no} - ${curCls.n}`;document.getElementById('modalFare').innerText=`₹${f.toLocaleString('en-IN')}`;document.getElementById('bookModal').classList.add('open');}
+function closeModal(){document.getElementById('bookModal').classList.remove('open')}
+function confirmBook(e){
+  e.preventDefault();const pnr=Math.floor(2000000000+Math.random()*8000000000).toString(), coach=curCls.n==='1A'?'H1':'B4', berthNo=Math.floor(Math.random()*64)+1;
+  const b={pnr,train:`${curTr.no} ${curTr.name}`,name:document.getElementById('pName').value,age:document.getElementById('pAge').value,berth:`${coach}-${berthNo} (${document.getElementById('pBerth').value})`,fare:curCls.f,pay:document.getElementById('pPay').value.split(' ')[0],status:"CNF",date:document.getElementById('tdate').value};
+  bookings.unshift(b);localStorage.setItem('irctc_b',JSON.stringify(bookings));closeModal();tab('pnr');document.getElementById('pnrInput').value=pnr;checkPnr();alert(`Ticket Confirmed! PNR: ${pnr}`);
+}
+function checkPnr(){
+  const pnr=document.getElementById('pnrInput').value.trim(), b=bookings.find(x=>x.pnr===pnr), out=document.getElementById('pnrResult');
+  if(!b)return out.innerHTML='<div class="card" style="color:#ef4444">PNR not found.</div>';
+  out.innerHTML=`<div class="card" style="border-left:4px solid ${b.status==='CNF'?'#10b981':'#ef4444'}"><div style="display:flex;justify-content:space-between"><h3>PNR: ${b.pnr}</h3><strong style="color:${b.status==='CNF'?'#34d399':'#ef4444'}">${b.status}</strong></div><div class="row" style="margin-top:6px"><div><strong>Train:</strong> ${b.train}</div><div><strong>Passenger:</strong> ${b.name} (${b.age}y)</div><div><strong>Berth:</strong> ${b.berth}</div><div><strong>Fare:</strong> ₹${b.fare} (${b.pay})</div></div></div>`;
+}
+function cancelTicket(){
+  const pnr=document.getElementById('cancelPnr').value.trim(), idx=bookings.findIndex(x=>x.pnr===pnr), out=document.getElementById('cancelResult');
+  if(idx===-1)return out.innerHTML='<div class="card" style="color:#ef4444">Invalid PNR.</div>';
+  const refund=Math.max(0,bookings[idx].fare-120);bookings[idx].status='CANCELLED';localStorage.setItem('irctc_b',JSON.stringify(bookings));
+  out.innerHTML=`<div class="card" style="border-left:4px solid #ef4444"><h3 style="color:#ef4444">Cancelled</h3><p>PNR: ${pnr} | Refund: <strong>₹${refund}</strong> (₹120 IRCTC deduction credited to UPI).</p></div>`;
+}
+function renderLedger(){document.getElementById('ledgerBody').innerHTML=bookings.map(b=>`<tr><td><strong>${b.pnr}</strong></td><td>${b.name}</td><td>${b.train}</td><td>${b.berth}</td><td>₹${b.fare}</td><td>${b.pay}</td><td style="color:${b.status==='CNF'?'#34d399':'#ef4444'}">${b.status}</td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center">No records.</td></tr>';}
+function clearLedger(){localStorage.removeItem('irctc_b');bookings=[];renderLedger();}
+renderTrains();
+</script>
+</body>
+</html>

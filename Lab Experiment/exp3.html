@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Deccan Express &bull; Online Bus Ticket Reservation</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}
+body{background:#f1f5f9;color:#0f172a;padding-bottom:24px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.brand{font-weight:700;font-size:1.1rem;color:#0d9488;display:flex;align-items:center;gap:8px}
+nav button{background:#fff;border:1px solid #e2e8f0;padding:6px 12px;border-radius:20px;font-weight:600;font-size:.82rem;cursor:pointer;margin-left:4px}
+nav button.active,nav button:hover{background:#0d9488;color:#fff;border-color:#0d9488}
+main{max-width:1100px;margin:18px auto;padding:0 16px}
+.panel{display:none;background:#fff;border-radius:12px;padding:22px;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,.06)}
+.panel.active{display:block}
+.bus-card{border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;background:#f8fafc}
+.seat{width:30px;height:30px;border:1px solid #cbd5e1;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:.72rem;cursor:pointer;background:#fff;font-weight:700}
+.seat.selected{background:#0d9488;color:#fff;border-color:#0d9488}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem;margin:4px 0 8px}
+.btn{background:#0d9488;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:.82rem}
+.btn:hover{background:#0f766e}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.85rem}
+th,td{padding:8px;text-align:left;border-bottom:1px solid #e2e8f0}th{background:#f1f5f9}
+.alert{background:#ecfdf5;color:#065f46;border-left:4px solid #10b981;padding:10px;border-radius:4px;margin-bottom:12px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa fa-bus"></i> Deccan Express Bus Network</div>
+  <nav><button class="active" onclick="tab('search')"><i class="fa fa-magnifying-glass"></i> Search</button><button onclick="tab('tickets')"><i class="fa fa-ticket"></i> Bookings</button><button onclick="tab('reviews')"><i class="fa fa-star"></i> Reviews</button><button onclick="tab('admin')"><i class="fa fa-shield-halved"></i> Admin</button><button onclick="tab('auth')"><i class="fa fa-user"></i> Login</button></nav>
+</header>
+<main>
+  <div id="toast" class="alert"></div>
+  <section id="p-search" class="panel active">
+    <div style="background:#f0fdfa;border:1px solid #ccfbf1;padding:12px;border-radius:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:8px;align-items:center">
+      <div><label style="font-size:.72rem;font-weight:700">FROM</label><input type="text" id="bFrom" value="Bengaluru (Majestic)" style="margin:0"></div><div><label style="font-size:.72rem;font-weight:700">TO</label><input type="text" id="bTo" value="Hyderabad (MGBS)" style="margin:0"></div><div><label style="font-size:.72rem;font-weight:700">DATE</label><input type="date" id="bDate" value="2026-03-20" style="margin:0"></div><button class="btn" style="height:36px;margin-top:12px" onclick="renderBuses()"><i class="fa fa-search"></i> Search</button>
+    </div>
+    <div id="busList" style="margin-top:12px"></div>
+    <div id="seatModal" style="display:none;background:#f8fafc;border:1px solid #cbd5e1;padding:12px;border-radius:8px;margin-top:12px">
+      <h4 id="smTitle">Select Seat (2+2 Cabin)</h4>
+      <div style="display:flex;gap:16px;align-items:center;margin:8px 0;flex-wrap:wrap">
+        <div style="background:#fff;border:1px solid #cbd5e1;padding:8px;border-radius:6px;text-align:center"><span style="font-size:.72rem;color:#64748b">DRIVER</span><div id="seatGrid" style="display:grid;grid-template-columns:repeat(5,32px);gap:5px;margin-top:6px"></div></div>
+        <div style="flex:1;min-width:180px"><p>Seat: <strong id="selSeatDisplay" style="color:#0d9488">None</strong> &bull; Fare: <strong id="selFareDisplay" style="color:#0d9488">₹0</strong></p><input type="text" id="paxName" placeholder="Passenger Full Name" value="Rohan Verma" style="margin-top:4px"><button class="btn" style="width:100%" onclick="confirmBusBooking()"><i class="fa fa-bolt"></i> Pay via UPI & Confirm</button></div>
+      </div>
+    </div>
+  </section>
+  <section id="p-tickets" class="panel"><h3><i class="fa fa-receipt"></i> Passenger Bookings</h3><table><thead><tr><th>PNR</th><th>Passenger</th><th>Bus & Route</th><th>Date</th><th>Seat</th><th>Fare</th><th>Status</th><th>Action</th></tr></thead><tbody id="ticketsBody"></tbody></table></section>
+  <section id="p-reviews" class="panel"><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><h3><i class="fa fa-newspaper"></i> News</h3><ul id="newsList" style="list-style:none;margin-top:6px;line-height:1.5;font-size:.82rem"></ul></div><div><h3><i class="fa fa-comments"></i> Reviews</h3><form onsubmit="addReview(event)"><input type="text" id="revUser" value="Pooja Nair" required><textarea id="revText" rows="2" required placeholder="Review..."></textarea><button class="btn">Submit</button></form><div id="revFeed" style="margin-top:8px"></div></div></div></section>
+  <section id="p-admin" class="panel"><h3><i class="fa fa-chart-line"></i> Admin Console</h3><div style="display:flex;gap:10px;margin:8px 0"><div style="background:#f0fdfa;padding:8px;border-radius:6px;flex:1"><span style="font-size:.75rem">TRIPS</span><h3 id="admTrips">3</h3></div><div style="background:#f0fdfa;padding:8px;border-radius:6px;flex:1"><span style="font-size:.75rem">REVENUE</span><h3 id="admRev">₹2,850.00</h3></div></div><form onsubmit="addBus(event)" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px"><input type="text" id="admName" placeholder="Name" required style="margin:0"><input type="text" id="admType" placeholder="Type" required style="margin:0"><input type="number" id="admFare" placeholder="Fare in ₹" required style="margin:0"><button class="btn"><i class="fa fa-plus"></i> Add</button></form></section>
+  <section id="p-auth" class="panel" style="max-width:360px;margin:0 auto"><h3><i class="fa fa-user-circle"></i> Login</h3><form onsubmit="event.preventDefault();msg('Signed in successfully!');tab('search')"><input type="email" value="rohan.verma@college.edu" required><input type="password" value="password123" required><button class="btn" style="width:100%">Sign In</button></form></section>
+</main>
+<script>
+let buses=[{id:1,name:"Kaveri Sleeper AC 2+2",from:"Bengaluru",to:"Hyderabad",dep:"21:00",arr:"06:30",fare:950},{id:2,name:"Deccan Garuda Volvo",from:"Bengaluru",to:"Hyderabad",dep:"22:15",arr:"07:00",fare:1150},{id:3,name:"CityLink Semi-Sleeper",from:"Bengaluru",to:"Hyderabad",dep:"23:00",arr:"08:15",fare:750}];
+let tickets=JSON.parse(localStorage.getItem('bus_tkts'))||[{pnr:"DX-9821",pax:"Rohan Verma",bus:"Kaveri Sleeper AC",route:"Bengaluru to Hyderabad",date:"2026-03-20",seat:"5A",fare:950,status:"Confirmed"}];
+let news=["Expressway Toll: 45m saved on NH44.","New Sleeper Fleet: GPS & charging points."], reviews=[{name:"Deepak Rao",text:"Sharp on time, clean blankets."}], activeBus=null, activeSeat=null;
+function msg(t){const el=document.getElementById('toast');el.innerText=t;el.style.display='block';setTimeout(()=>el.style.display='none',2500);}
+function tab(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');event.target.closest('button').classList.add('active');}
+function renderBuses(){document.getElementById('busList').innerHTML=buses.map(b=>`<div class="bus-card"><div><strong style="color:#0d9488">${b.name}</strong><div style="font-size:.8rem;color:#64748b">${b.dep} (${b.from}) &rarr; ${b.arr} (${b.to})</div></div><div><span style="font-size:1.1rem;font-weight:700;color:#0d9488">₹${b.fare}</span><button class="btn" style="margin-left:8px" onclick="openSeatMap(${b.id})">Select</button></div></div>`).join('');}
+function openSeatMap(id){
+  activeBus=buses.find(x=>x.id===id);document.getElementById('seatModal').style.display='block';document.getElementById('smTitle').innerText=`Select Seat (2+2) &bull; ${activeBus.name}`;
+  let h='';for(let r=1;r<=6;r++){h+=`<div class="seat" onclick="pickSeat('${r}A')">${r}A</div><div class="seat" onclick="pickSeat('${r}B')">${r}B</div><div style="width:8px"></div><div class="seat" onclick="pickSeat('${r}C')">${r}C</div><div class="seat" onclick="pickSeat('${r}D')">${r}D</div>`;}
+  document.getElementById('seatGrid').innerHTML=h;
+}
+function pickSeat(s){activeSeat=s;document.querySelectorAll('.seat').forEach(el=>el.classList.remove('selected'));event.target.classList.add('selected');document.getElementById('selSeatDisplay').innerText=s;document.getElementById('selFareDisplay').innerText=`₹${activeBus.fare}.00`;}
+function confirmBusBooking(){
+  if(!activeSeat){alert('Pick a seat!');return;}
+  const pnr="DX-"+Math.floor(1000+Math.random()*9000), pax=document.getElementById('paxName').value||"Rohan Verma";
+  tickets.unshift({pnr,pax,bus:activeBus.name,route:`${activeBus.from} to ${activeBus.to}`,date:document.getElementById('bDate').value,seat:activeSeat,fare:activeBus.fare,status:"Confirmed"});
+  localStorage.setItem('bus_tkts',JSON.stringify(tickets));renderTickets();msg(`UPI Approved! PNR ${pnr} issued.`);tab('tickets');
+}
+function cancelTicket(i){if(confirm(`Cancel ticket ${tickets[i].pnr}? 100% refund of ₹${tickets[i].fare} will be sent to UPI.`)){tickets[i].status="Cancelled (Refund ₹"+tickets[i].fare+" Sent)";localStorage.setItem('bus_tkts',JSON.stringify(tickets));renderTickets();msg('Refund processed via UPI!');}}
+function renderTickets(){document.getElementById('ticketsBody').innerHTML=tickets.map((t,i)=>`<tr><td><strong>${t.pnr}</strong></td><td>${t.pax}</td><td>${t.bus}</td><td>${t.date}</td><td><span style="background:#ccfbf1;color:#0f766e;padding:2px 4px;border-radius:4px;font-weight:700">${t.seat}</span></td><td style="font-weight:700;color:#0d9488">₹${t.fare}</td><td><span style="font-weight:700;font-size:.78rem;color:${t.status==='Confirmed'?'#10b981':'#ef4444'}">${t.status}</span></td><td>${t.status==='Confirmed'?`<button class="btn" style="background:#ef4444;padding:3px 6px;font-size:.72rem" onclick="cancelTicket(${i})">Cancel</button>`:'-'}</td></tr>`).join('')||`<tr><td colspan="8" style="text-align:center">No bookings.</td></tr>`;renderAdmin();}
+function addReview(e){e.preventDefault();reviews.unshift({name:document.getElementById('revUser').value,text:document.getElementById('revText').value});e.target.reset();renderReviews();msg('Review added!');}
+function renderReviews(){document.getElementById('revFeed').innerHTML=reviews.map(r=>`<div style="background:#f8fafc;padding:6px;border-radius:4px;margin-bottom:4px;border:1px solid #e2e8f0"><strong style="font-size:.8rem">${r.name}</strong><p style="font-size:.75rem;color:#64748b">${r.text}</p></div>`).join('');document.getElementById('newsList').innerHTML=news.map(n=>`<li>&bull; ${n}</li>`).join('');}
+function addBus(e){e.preventDefault();buses.push({id:buses.length+1,name:document.getElementById('admName').value,from:"Bengaluru",to:"Hyderabad",dep:"20:00",arr:"05:30",fare:parseInt(document.getElementById('admFare').value)});e.target.reset();renderBuses();msg('Bus service added!');}
+function renderAdmin(){document.getElementById('admTrips').innerText=buses.length;const rev=tickets.filter(t=>t.status==='Confirmed').reduce((a,b)=>a+b.fare,0);document.getElementById('admRev').innerText=`₹${rev.toLocaleString('en-IN')}.00`;}
+renderBuses();renderTickets();renderReviews();
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Casa Bella Vista Resort &bull; Hotel Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}
+body{background:#f8fafc;color:#0f172a;padding-bottom:20px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.brand{font-weight:700;font-size:1.1rem;color:#d97706;display:flex;align-items:center;gap:8px}
+nav button{background:#fff;border:1px solid #e2e8f0;padding:5px 12px;border-radius:20px;font-weight:600;font-size:.8rem;cursor:pointer;margin-left:4px}
+nav button.active,nav button:hover{background:#d97706;color:#fff;border-color:#d97706}
+main{max-width:1100px;margin:16px auto;padding:0 14px}
+.panel{display:none;background:#fff;border-radius:10px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,.06)}
+.panel.active{display:block}
+.search-bar{background:#fef3c7;border:1px solid #fde68a;padding:12px;border-radius:8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:8px;align-items:center}
+input,select,textarea{width:100%;padding:7px 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:.82rem}
+.btn{background:#d97706;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:.82rem}
+.btn:hover{background:#b45309}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.card{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+.card img{width:100%;height:130px;object-fit:cover}
+.card-body{padding:10px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.82rem}
+th,td{padding:8px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#f1f5f9}
+.alert{background:#ecfdf5;color:#065f46;border-left:4px solid #10b981;padding:8px;border-radius:4px;margin-bottom:10px;display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa fa-hotel"></i> Casa Bella Vista Resort (Goa)</div>
+  <nav><button class="active" onclick="tab('rooms')"><i class="fa fa-bed"></i> Rooms</button><button onclick="tab('mybookings')"><i class="fa fa-calendar-check"></i> Bookings</button><button onclick="tab('about')"><i class="fa fa-circle-info"></i> About</button><button onclick="tab('cms')"><i class="fa fa-gear"></i> Admin CMS</button></nav>
+</header>
+<main>
+  <div id="toast" class="alert"></div>
+  <section id="p-rooms" class="panel active">
+    <div class="search-bar">
+      <div><label style="font-size:.7rem;font-weight:700">DESTINATION</label><input type="text" id="sDest" value="South Goa Beach, India"></div>
+      <div><label style="font-size:.7rem;font-weight:700">CHECK-IN</label><input type="date" id="sIn" value="2026-03-25"></div>
+      <div><label style="font-size:.7rem;font-weight:700">CHECK-OUT</label><input type="date" id="sOut" value="2026-03-28"></div>
+      <div><label style="font-size:.7rem;font-weight:700">GUESTS</label><select id="sGst"><option>1 Adult</option><option selected>2 Adults</option><option>4 Family</option></select></div>
+      <button class="btn" style="margin-top:10px" onclick="renderRooms()"><i class="fa fa-magnifying-glass"></i> Check</button>
+    </div>
+    <div style="background:#fffbeb;border:1px dashed #f59e0b;padding:6px 10px;border-radius:6px;margin-top:10px;font-size:.8rem;color:#92400e">
+      <i class="fa fa-clock"></i> <strong>Strict 3-Day Rule Policy:</strong> Cancellations &amp; modifications permitted 3+ days prior to check-in for 100% refund in ₹.
+    </div>
+    <div class="grid" id="roomGrid"></div>
+  </section>
+  <section id="p-mybookings" class="panel">
+    <h3><i class="fa fa-receipt"></i> Room Reservations</h3>
+    <table><thead><tr><th>Booking ID</th><th>Guest</th><th>Room</th><th>Dates</th><th>Tariff</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookingsBody"></tbody></table>
+  </section>
+  <section id="p-about" class="panel" style="font-size:.85rem;line-height:1.5">
+    <h3 style="color:#d97706;margin-bottom:6px" id="cmsTitle">About Casa Bella Vista Resort &bull; Goa</h3>
+    <p id="cmsDesc" style="color:#475569;margin-bottom:8px">Nestled along pristine white sands of South Goa, Casa Bella Vista provides beachfront luxury with private pools and seaside dining.</p>
+    <h4>Cancellation Policy:</h4><p style="color:#475569">Full refund via UPI up to 72 hours (3 days) before check-in.</p>
+  </section>
+  <section id="p-cms" class="panel">
+    <h3><i class="fa fa-pen-to-square"></i> Admin CMS & Tariffs</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+      <div><input type="text" id="cmsEditTitle" value="About Casa Bella Vista Resort • Goa"><textarea id="cmsEditDesc" rows="2">Luxury beachfront 5-star haven on South Goa coast.</textarea><button class="btn" onclick="saveCMS()">Publish CMS</button></div>
+      <div><div id="cmsTariffs"></div></div>
+    </div>
+  </section>
+</main>
+<script>
+let rooms=JSON.parse(localStorage.getItem('htl_rms'))||[{id:1,name:"Superior Garden Room",tariff:2850,avail:6,img:"https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=400&q=80",amenities:"Balcony, Free Wi-Fi, Breakfast"},{id:2,name:"Deluxe Oceanview Suite",tariff:4650,avail:4,img:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=400&q=80",amenities:"Sea View Deck, Rain Shower, 4K TV"},{id:3,name:"Royal Beachfront Villa",tariff:8900,avail:2,img:"https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=400&q=80",amenities:"Private Jacuzzi, Butler Service"}];
+let bookings=JSON.parse(localStorage.getItem('htl_bks'))||[{id:"CBV-8142",guest:"Aarav Mehta",room:"Deluxe Oceanview Suite",checkin:"2026-03-25",checkout:"2026-03-28",tariff:13950,status:"Confirmed"}];
+function msg(t){const el=document.getElementById('toast');el.innerText=t;el.style.display='block';setTimeout(()=>el.style.display='none',2500);}
+function tab(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');event.target.closest('button').classList.add('active');}
+function renderRooms(){document.getElementById('roomGrid').innerHTML=rooms.map(r=>`<div class="card"><img src="${r.img}" alt="${r.name}"><div class="card-body"><h4 style="font-size:.95rem">${r.name}</h4><p style="font-size:.75rem;color:#64748b;margin:4px 0">${r.amenities}</p><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:1.1rem;font-weight:700;color:#d97706">₹${r.tariff.toLocaleString('en-IN')}</span><button class="btn" style="padding:4px 10px;font-size:.75rem" onclick="bookRoom(${r.id})">Book</button></div></div></div>`).join('');}
+function bookRoom(id){
+  const r=rooms.find(item=>item.id===id), name=prompt("Primary Guest Name (India):","Aarav Mehta");if(!name)return;
+  const bId="CBV-"+Math.floor(1000+Math.random()*9000);
+  bookings.unshift({id:bId,guest:name,room:r.name,checkin:document.getElementById('sIn').value,checkout:document.getElementById('sOut').value,tariff:r.tariff*3,status:"Confirmed"});
+  localStorage.setItem('htl_bks',JSON.stringify(bookings));renderBookings();msg(`Booking ${bId} confirmed via UPI!`);tab('mybookings');
+}
+function cancelBooking(idx){
+  const b=bookings[idx], diffDays=Math.ceil((new Date(b.checkin)-new Date())/(1000*60*60*24));
+  if(diffDays>=3){
+    if(confirm(`Cancel ${b.id}? Full refund of ₹${b.tariff} will be sent to UPI.`)){
+      bookings[idx].status="Cancelled (Refund ₹"+b.tariff+" Approved)";localStorage.setItem('htl_bks',JSON.stringify(bookings));renderBookings();msg('3-Day Policy: 100% Refund credited via UPI!');
+    }
+  } else alert(`Strict 3-Day Rule: Check-in in ${diffDays} day(s). Cancellation only permitted 3+ days prior.`);
+}
+function renderBookings(){document.getElementById('bookingsBody').innerHTML=bookings.map((b,i)=>`<tr><td><strong>${b.id}</strong></td><td>${b.guest}</td><td>${b.room}</td><td>${b.checkin}</td><td style="font-weight:700;color:#d97706">₹${b.tariff}</td><td><span style="color:${b.status==='Confirmed'?'#10b981':'#ef4444'}">${b.status}</span></td><td>${b.status==='Confirmed'?`<button class="btn" style="padding:3px 6px;background:#ef4444;font-size:.72rem" onclick="cancelBooking(${i})">Cancel</button>`:'-'}</td></tr>`).join('')||`<tr><td colspan="7" style="text-align:center">No reservations.</td></tr>`;}
+function saveCMS(){document.getElementById('cmsTitle').innerText=document.getElementById('cmsEditTitle').value;document.getElementById('cmsDesc').innerText=document.getElementById('cmsEditDesc').value;msg('CMS Saved!');}
+function renderCMSTariffs(){document.getElementById('cmsTariffs').innerHTML=rooms.map((r,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:.78rem">${r.name}:</span><div style="display:flex;gap:4px"><input type="number" id="trf_${i}" value="${r.tariff}" style="width:80px;margin:0"><button class="btn" style="padding:3px 6px;font-size:.72rem" onclick="updateTariff(${i})">Save</button></div></div>`).join('');}
+function updateTariff(i){rooms[i].tariff=parseInt(document.getElementById('trf_'+i).value);localStorage.setItem('htl_rms',JSON.stringify(rooms));renderRooms();msg(`Tariff updated to ₹${rooms[i].tariff}`);}
+renderRooms();renderBookings();renderCMSTariffs();
+</script>
+</body>
+</html>

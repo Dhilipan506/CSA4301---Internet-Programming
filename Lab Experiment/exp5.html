@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>SkyWings India - Flight Reservation & Boarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--p:#2563eb;--bg:#0b132b;--c:#1c2541;--t:#f8fafc;--m:#94a3b8;--b:#3a506b}*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}body{background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:20px}header{background:#0e1726;border-bottom:1px solid var(--b);padding:10px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}.brand{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff}nav{display:flex;gap:6px}nav button{background:transparent;border:1px solid var(--b);color:var(--m);padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:12px;display:flex;align-items:center;gap:4px}nav button.active,nav button:hover{background:var(--p);color:#fff;border-color:var(--p)}main{max-width:1100px;margin:16px auto;padding:0 14px}.tab{display:none}.tab.active{display:block}.card{background:var(--c);border:1px solid var(--b);border-radius:8px;padding:16px;margin-bottom:12px}.row{display:flex;gap:8px;flex-wrap:wrap}input,select{background:#0b132b;border:1px solid var(--b);color:#fff;padding:7px 10px;border-radius:6px;flex:1;min-width:140px;font-size:13px}.btn{background:var(--p);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px}.btn-alt{background:#3a506b}.btn-sm{padding:4px 8px;font-size:11px}.fl-item{background:#0b132b;border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}.seat-grid{display:grid;grid-template-columns:repeat(4,34px);gap:6px;justify-content:center;margin:10px auto}.seat{width:34px;height:34px;background:#1c2541;border:1px solid var(--b);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:pointer}.seat.sel{background:#10b981;border-color:#10b981;color:#fff}.seat.occ{background:#334155;color:#64748b;cursor:not-allowed}.pass-box{background:#fff;color:#0f172a;border-radius:8px;padding:16px;max-width:540px;margin:10px auto;border-left:6px solid var(--p)}table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}th,td{padding:7px;text-align:left;border-bottom:1px solid var(--b)}th{color:var(--m)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa-solid fa-plane-departure" style="color:#60a5fa"></i> SkyWings India <span style="font-size:10px;background:#2563eb;padding:2px 5px;border-radius:8px">DGCA Approved</span></div>
+  <nav id="nav"><button class="active" onclick="tab('search')"><i class="fa-solid fa-plane"></i> Search</button><button onclick="tab('seats')"><i class="fa-solid fa-couch"></i> Seats</button><button onclick="tab('pass')"><i class="fa-solid fa-ticket"></i> Pass</button><button onclick="tab('status')"><i class="fa-solid fa-clock"></i> Status</button><button onclick="tab('admin')"><i class="fa-solid fa-users"></i> Manifest</button></nav>
+</header>
+<main>
+  <section id="search" class="tab active">
+    <div class="card">
+      <h3 style="margin-bottom:8px"><i class="fa-solid fa-magnifying-glass" style="color:#60a5fa"></i> Domestic Indian Flights</h3>
+      <div class="row">
+        <select id="origin"><option value="DEL">Delhi (DEL) - T3</option><option value="BOM">Mumbai (BOM) - T2</option></select><select id="dest"><option value="BOM">Mumbai (BOM) - T2</option><option value="DEL">Delhi (DEL) - T3</option></select>
+        <input type="date" id="fdate" value="2026-10-25"><select id="cls"><option value="Eco">Economy</option><option value="Bzn">Business</option></select>
+        <button class="btn" onclick="renderFlights()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+      </div>
+    </div>
+    <div id="flightList"></div>
+  </section>
+  <section id="seats" class="tab">
+    <div class="card" style="text-align:center">
+      <h3><i class="fa-solid fa-couch" style="color:#60a5fa"></i> Select Seat (Airbus A321neo)</h3>
+      <p style="color:var(--m);font-size:12px;margin:4px 0 8px">Flight: <strong id="selFlightName" style="color:#fff">AI-804 DEL ➔ BOM</strong></p>
+      <div class="seat-grid" id="seatGrid"></div>
+      <div class="row" style="max-width:380px;margin:10px auto 0"><input type="text" id="paxName" placeholder="Passenger Name" value="Dhiliban K"><button class="btn" onclick="confirmBooking()"><i class="fa-solid fa-check"></i> Book Seat (UPI)</button></div>
+    </div>
+  </section>
+  <section id="pass" class="tab"><div class="card" style="text-align:center"><h3><i class="fa-solid fa-print" style="color:#60a5fa"></i> Boarding Pass</h3><div id="passContent"></div><button class="btn btn-alt" style="margin-top:8px" onclick="window.print()">Print</button></div></section>
+  <section id="status" class="tab">
+    <div class="card"><h3><i class="fa-solid fa-clock-rotate-left" style="color:#60a5fa"></i> Flight Status & Cancel</h3><div class="row" style="max-width:450px;margin-top:8px"><input type="text" id="pnrQuery" placeholder="Enter PNR (e.g. SKY921)"><button class="btn" onclick="trackPnr()">Track</button><button class="btn" style="background:#ef4444" onclick="cancelFlight()">Cancel</button></div></div>
+    <div id="statusResult"></div>
+  </section>
+  <section id="admin" class="tab"><div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><h3><i class="fa-solid fa-clipboard-user" style="color:#60a5fa"></i> Flight Manifest</h3><button class="btn btn-sm btn-alt" onclick="clearData()">Reset</button></div><div style="overflow-x:auto"><table><thead><tr><th>PNR</th><th>Passenger</th><th>Flight</th><th>Seat</th><th>Fare</th><th>Gate</th><th>Status</th></tr></thead><tbody id="adminBody"></tbody></table></div></div></section>
+</main>
+<script>
+const flights=[{no:"AI-804",air:"Air India",dep:"07:00 DEL",arr:"09:15 BOM",dur:"2h 15m",gate:"Gate 32",eco:4850,bzn:11200},{no:"6E-205",air:"IndiGo",dep:"10:30 DEL",arr:"12:45 BOM",dur:"2h 15m",gate:"Gate 14A",eco:4320,bzn:9800},{no:"UK-993",air:"Vistara",dep:"14:15 DEL",arr:"16:30 BOM",dur:"2h 15m",gate:"Gate 27B",eco:5200,bzn:13400}];
+let curFl=flights[0], curSeat="3A", bookings=JSON.parse(localStorage.getItem('sky_b')||'[]');
+if(!bookings.length){bookings=[{pnr:"SKY921",flight:"AI-804",pax:"Dhiliban K",route:"DEL ➔ BOM",seat:"3A",fare:4850,gate:"Gate 32",status:"CONFIRMED",date:"2026-10-25"}];localStorage.setItem('sky_b',JSON.stringify(bookings));}
+function tab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');event?.target?.closest('button')?.classList.add('active');if(id==='seats')renderSeats();if(id==='pass')renderPass(bookings[0]);if(id==='admin')renderAdmin();}
+function renderFlights(){const c=document.getElementById('cls').value;document.getElementById('flightList').innerHTML=flights.map(f=>`<div class="fl-item"><div><strong><span style="color:#60a5fa">${f.no}</span> • ${f.air}</strong><div style="font-size:11px;color:var(--m)">${f.dep} ➔ ${f.arr} • ${f.dur} • ${f.gate}</div></div><div><span style="font-size:15px;font-weight:700;color:#f59e0b">₹${(c==='Eco'?f.eco:f.bzn).toLocaleString('en-IN')}</span><button class="btn btn-sm" style="margin-left:6px" onclick="selectFlight('${f.no}')">Select</button></div></div>`).join('');}
+function selectFlight(no){curFl=flights.find(x=>x.no===no)||flights[0];document.getElementById('selFlightName').innerText=`${curFl.no} (${curFl.air}) - ₹${curFl.eco}`;tab('seats');}
+function renderSeats(){let h='', occ=['1B','2C','4D'];for(let r=1;r<=6;r++){['A','B','C','D'].forEach(c=>{const id=`${r}${c}`, isO=occ.includes(id), isS=curSeat===id;h+=`<div class="seat ${isO?'occ':isS?'sel':''}" onclick="${isO?'':`pickSeat('${id}')`}">${id}</div>`;});}document.getElementById('seatGrid').innerHTML=h;}
+function pickSeat(id){curSeat=id;renderSeats();}
+function confirmBooking(){
+  const pax=document.getElementById('paxName').value.trim()||'Passenger', pnr='SKY'+Math.floor(100+Math.random()*900);
+  const b={pnr,flight:curFl.no,pax,route:`${curFl.dep.split(' ')[1]} ➔ ${curFl.arr.split(' ')[1]}`,seat:curSeat,fare:curFl.eco,gate:curFl.gate,status:"CONFIRMED",date:document.getElementById('fdate').value};
+  bookings.unshift(b);localStorage.setItem('sky_b',JSON.stringify(bookings));alert(`Ticket Confirmed via UPI! PNR: ${pnr}`);tab('pass');renderPass(b);
+}
+function renderPass(b){
+  if(!b)return document.getElementById('passContent').innerHTML='<p style="color:var(--m)">No boarding pass.</p>';
+  document.getElementById('passContent').innerHTML=`<div class="pass-box"><div style="display:flex;justify-content:space-between;border-bottom:1px dashed #cbd5e1;padding-bottom:8px"><div><h4 style="color:var(--p)">SKYWINGS AIR</h4><span style="font-size:11px;color:#64748b">Boarding Pass</span></div><div><strong>${b.pnr}</strong> <span style="font-size:11px;color:#10b981">● ${b.status}</span></div></div><div class="row" style="margin:10px 0;font-size:12px"><div>Pax: <strong>${b.pax}</strong></div><div>Flight: <strong>${b.flight}</strong></div><div>Seat: <strong style="color:var(--p);font-size:15px">${b.seat}</strong></div><div>Gate: <strong>${b.gate}</strong></div><div>Fare: <strong>₹${b.fare}</strong></div></div><div style="background:#f1f5f9;padding:4px;font-family:monospace;letter-spacing:3px;text-align:center;font-size:12px">||||| ||||||| |||| | |||||||||||</div></div>`;
+}
+function trackPnr(){const q=document.getElementById('pnrQuery').value.trim().toUpperCase(), b=bookings.find(x=>x.pnr===q), out=document.getElementById('statusResult');if(!b)return out.innerHTML='<div class="card" style="color:#ef4444">PNR not found.</div>';out.innerHTML=`<div class="card" style="border-left:4px solid ${b.status==='CONFIRMED'?'#10b981':'#ef4444'}"><h3>PNR: ${b.pnr} • ${b.status}</h3><p style="margin-top:4px">Pax: <strong>${b.pax}</strong> | Flight: <strong>${b.flight}</strong> | Seat: <strong>${b.seat}</strong> | Gate: <strong>${b.gate}</strong></p></div>`;}
+function cancelFlight(){const q=document.getElementById('pnrQuery').value.trim().toUpperCase(), b=bookings.find(x=>x.pnr===q), out=document.getElementById('statusResult');if(!b||b.status==='CANCELLED')return out.innerHTML='<div class="card" style="color:#ef4444">Invalid or cancelled PNR.</div>';b.status='CANCELLED';localStorage.setItem('sky_b',JSON.stringify(bookings));const ref=Math.max(0,b.fare-499);out.innerHTML=`<div class="card" style="border-left:4px solid #ef4444"><h3 style="color:#ef4444">Cancelled</h3><p>PNR <strong>${b.pnr}</strong> cancelled. <strong>₹${ref}</strong> refunded to UPI after ₹499 fee.</p></div>`;}
+function renderAdmin(){document.getElementById('adminBody').innerHTML=bookings.map(b=>`<tr><td><strong>${b.pnr}</strong></td><td>${b.pax}</td><td>${b.flight}</td><td>${b.seat}</td><td>₹${b.fare}</td><td>${b.gate}</td><td style="color:${b.status==='CONFIRMED'?'#10b981':'#ef4444'}">● ${b.status}</td></tr>`).join('')||'<tr><td colspan="7" style="text-align:center">No flights.</td></tr>';}
+function clearData(){localStorage.removeItem('sky_b');bookings=[];renderAdmin();}
+renderFlights();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Athena Central Library - Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}
+body{background:#f1f5f9;color:#0f172a;padding-bottom:24px}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.1rem;color:#4338ca}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:#f8fafc;border:1px solid #e2e8f0;padding:6px 14px;border-radius:20px;font-weight:600;font-size:.82rem;cursor:pointer;transition:.2s}
+nav button.active,nav button:hover{background:#4338ca;color:#fff;border-color:#4338ca}
+main{max-width:1100px;margin:18px auto;padding:0 16px}
+.panel{display:none;background:#fff;border-radius:12px;padding:22px;box-shadow:0 4px 6px -1px rgba(0,0,0,.07);border:1px solid #e2e8f0}
+.panel.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+.card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;position:relative}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:700;background:#e0e7ff;color:#3730a3}
+input,select,textarea{width:100%;padding:8px 12px;margin:6px 0 10px;border:1px solid #cbd5e1;border-radius:6px;font-size:.85rem}
+.btn{background:#4338ca;color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;cursor:pointer;font-size:.82rem}
+.btn:hover{background:#3730a3}.btn-del{background:#ef4444}.btn-del:hover{background:#dc2626}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem}
+th,td{padding:9px;text-align:left;border-bottom:1px solid #e2e8f0}th{background:#f1f5f9;font-weight:700}
+.alert{background:#ecfdf5;color:#065f46;border-left:4px solid #10b981;padding:10px;border-radius:4px;margin-bottom:12px;font-size:.85rem;display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i class="fa fa-book-bookmark"></i> Athena Library Portal (IIT Delhi)</div>
+  <nav>
+    <button class="active" onclick="tab('catalog')"><i class="fa fa-book"></i> Catalog</button>
+    <button onclick="tab('student')"><i class="fa fa-user-graduate"></i> My Account</button>
+    <button onclick="tab('materials')"><i class="fa fa-folder-open"></i> Study Materials</button>
+    <button onclick="tab('admin')"><i class="fa fa-lock"></i> Librarian Admin</button>
+    <button onclick="tab('contact')"><i class="fa fa-envelope"></i> Contact</button>
+  </nav>
+</header>
+<main>
+  <div id="toast" class="alert"></div>
+  <section id="p-catalog" class="panel active">
+    <div style="display:flex;gap:10px;align-items:center">
+      <input type="text" id="srch" placeholder="Search title, author, or ISBN..." oninput="renderBooks()" style="margin:0">
+      <select id="srchCat" onchange="renderBooks()" style="width:200px;margin:0"><option value="">All Categories</option><option>Computer Science</option><option>Electronics</option><option>Mathematics</option></select>
+    </div>
+    <div class="grid" id="bookGrid"></div>
+  </section>
+  <section id="p-student" class="panel">
+    <h3><i class="fa fa-id-card"></i> Student Borrowing & Fine Desk</h3>
+    <p style="font-size:.85rem;color:#64748b;margin:4px 0 10px">Roll No: <strong>22BCS1048</strong> &bull; Student: <strong>Aarav Sharma</strong> &bull; Fine Rate: <strong>₹5.00/day</strong></p>
+    <table><thead><tr><th>Book Title</th><th>Issue Date</th><th>Due Date</th><th>Days Overdue</th><th>Fine Amount</th><th>Action</th></tr></thead><tbody id="issuedBody"></tbody></table>
+  </section>
+  <section id="p-materials" class="panel">
+    <h3><i class="fa fa-file-pdf"></i> Year & Semester-Wise Study Repository</h3>
+    <div class="grid" id="matGrid"></div>
+  </section>
+  <section id="p-admin" class="panel">
+    <h3><i class="fa fa-shield-halved"></i> Librarian Management Console</h3>
+    <form onsubmit="addBook(event)" style="background:#f8fafc;padding:12px;border-radius:8px;margin:10px 0;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:center">
+      <input type="text" id="bTitle" placeholder="Book Title" required style="margin:0"><input type="text" id="bAuthor" placeholder="Author" required style="margin:0"><select id="bDept" style="margin:0"><option>Computer Science</option><option>Electronics</option><option>Mathematics</option></select><button type="submit" class="btn"><i class="fa fa-plus"></i> Add Book</button>
+    </form>
+    <table><thead><tr><th>ISBN</th><th>Title</th><th>Author</th><th>Dept</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminBooksBody"></tbody></table>
+  </section>
+  <section id="p-contact" class="panel" style="max-width:550px;margin:0 auto">
+    <h3><i class="fa fa-paper-plane"></i> Library Support Form</h3>
+    <form onsubmit="event.preventDefault();msg('Message sent to Central Librarian Desk!')">
+      <input type="text" value="Aarav Sharma" required placeholder="Name"><input type="email" value="aarav.s@iitd.ac.in" required placeholder="Email"><textarea rows="3" required placeholder="Query or Book Recommendation Request..."></textarea><button class="btn" style="width:100%">Submit Query</button>
+    </form>
+  </section>
+</main>
+<script>
+let books=JSON.parse(localStorage.getItem('lib_bks'))||[{isbn:"978-0131103627",title:"The C Programming Language",author:"Brian Kernighan, Dennis Ritchie",dept:"Computer Science",avail:true},{isbn:"978-0262033848",title:"Introduction to Algorithms",author:"Thomas Cormen",dept:"Computer Science",avail:false},{isbn:"978-0132143011",title:"Computer Networks 5th Ed",author:"Andrew Tanenbaum",dept:"Computer Science",avail:true},{isbn:"978-0070141650",title:"Higher Engineering Mathematics",author:"B.S. Grewal",dept:"Mathematics",avail:true}];
+let issued=[{title:"Introduction to Algorithms",issue:"2026-02-10",due:"2026-02-24",days:14,fine:70}];
+const materials=[{year:"Year 3",sem:"Sem 6",code:"CS601",subject:"Internet Programming",files:"Syllabus, Unit 1-5 Slides, Lab Manual (PDF)"},{year:"Year 3",sem:"Sem 6",code:"CS602",subject:"Artificial Intelligence",files:"Lec Notes, Neural Nets Practice Sets"},{year:"Year 2",sem:"Sem 4",code:"CS404",subject:"Database Management Systems",files:"SQL Worksheets, ER Diagrams Guide"}];
+function msg(t){const el=document.getElementById('toast');el.innerText=t;el.style.display='block';setTimeout(()=>el.style.display='none',2500);}
+function tab(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('p-'+id).classList.add('active');event.target.closest('button').classList.add('active');}
+function renderBooks(){
+  const q=document.getElementById('srch').value.toLowerCase(), cat=document.getElementById('srchCat').value;
+  const filtered=books.filter(b=>(!cat||b.dept===cat)&&(b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q)||b.isbn.includes(q)));
+  document.getElementById('bookGrid').innerHTML=filtered.map((b,i)=>`<div class="card"><span class="badge">${b.dept}</span><h4 style="margin:8px 0 4px">${b.title}</h4><p style="font-size:.82rem;color:#64748b">By ${b.author}<br>ISBN: ${b.isbn}</p><div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px"><span style="font-size:.8rem;font-weight:700;color:${b.avail?'#10b981':'#ef4444'}">${b.avail?'Available':'Issued Out'}</span><button class="btn" style="padding:4px 10px;font-size:.78rem" ${!b.avail?'disabled':''} onclick="borrow(${i})">${b.avail?'Borrow Book':'Waitlist'}</button></div></div>`).join('');
+  renderAdmin();
+}
+function borrow(i){books[i].avail=false;issued.push({title:books[i].title,issue:new Date().toISOString().slice(0,10),due:'2026-03-20',days:0,fine:0});save();renderStudent();msg(`Issued: "${books[i].title}"`);}
+function returnBook(idx){issued.splice(idx,1);save();renderStudent();msg('Book returned successfully!');}
+function payFine(idx){issued[idx].fine=0;issued[idx].days=0;renderStudent();msg('Fine paid via UPI successfully! ₹0 due.');}
+function renderStudent(){document.getElementById('issuedBody').innerHTML=issued.map((b,i)=>`<tr><td><strong>${b.title}</strong></td><td>${b.issue}</td><td>${b.due}</td><td>${b.days>0?`<span style="color:#ef4444;font-weight:700">${b.days} days</span>`:'On Time'}</td><td style="font-weight:700;color:${b.fine>0?'#ef4444':'#10b981'}">₹${b.fine}.00</td><td>${b.fine>0?`<button class="btn" style="padding:4px 8px;background:#10b981" onclick="payFine(${i})">Pay UPI ₹${b.fine}</button>`:''}<button class="btn btn-del" style="padding:4px 8px" onclick="returnBook(${i})">Return</button></td></tr>`).join('')||`<tr><td colspan="6" style="text-align:center;color:#64748b">No books currently borrowed.</td></tr>`;}
+function renderAdmin(){document.getElementById('adminBooksBody').innerHTML=books.map((b,i)=>`<tr><td>${b.isbn}</td><td><strong>${b.title}</strong></td><td>${b.author}</td><td>${b.dept}</td><td><span style="color:${b.avail?'#10b981':'#ef4444'};font-weight:700">${b.avail?'In Shelf':'Issued'}</span></td><td><button class="btn btn-del" style="padding:4px 8px" onclick="delBook(${i})"><i class="fa fa-trash"></i></button></td></tr>`).join('');}
+function addBook(e){e.preventDefault();books.unshift({isbn:'978-81'+Math.floor(1000000+Math.random()*9000000),title:document.getElementById('bTitle').value,author:document.getElementById('bAuthor').value,dept:document.getElementById('bDept').value,avail:true});e.target.reset();save();renderBooks();msg('New Book Added to Library Catalog!');}
+function delBook(i){books.splice(i,1);save();renderBooks();msg('Book record deleted.');}
+function save(){localStorage.setItem('lib_bks',JSON.stringify(books));}
+document.getElementById('matGrid').innerHTML=materials.map(m=>`<div class="card"><span class="badge" style="background:#fef3c7;color:#92400e">${m.year} &bull; ${m.sem}</span><h4 style="margin:8px 0 4px">${m.code}: ${m.subject}</h4><p style="font-size:.82rem;color:#64748b">${m.files}</p><button class="btn" style="margin-top:8px;padding:4px 10px;font-size:.78rem" onclick="msg('Downloading syllabus & lecture notes...')"><i class="fa fa-download"></i> Download Study Material</button></div>`).join('');
+renderBooks();renderStudent();
+</script>
+</body>
+</html>
